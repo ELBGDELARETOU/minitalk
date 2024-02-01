@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   server.c                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: anaouali <anaouali@student.42.fr>          +#+  +:+       +#+        */
+/*   By: ademnaouali <ademnaouali@student.42.fr>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 17:35:29 by anaouali          #+#    #+#             */
-/*   Updated: 2024/02/01 17:52:24 by anaouali         ###   ########.fr       */
+/*   Updated: 2024/02/01 23:27:52 by ademnaouali      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,36 +14,45 @@
 #include <stdio.h>
 #include <unistd.h>
 
-void	bit_decrypt(char *bin_str)
+static void		bit_decrypt(int sig, siginfo_t *bin_str, void *t)
 {
-	int	i;
-	int	c;
+	static int	i;
+	static int	c;
+	static pid_t pid;
 
-	i = 7;
-	while (*bin_str)
+	c = 0;
+	i = 0;
+	pid = 0;
+	if (!pid)
+        pid = bin_str->si_pid;
+	c |= (sig == SIGUSR2);
+	if (++i == 8)
 	{
-		c |= (*bin_str == '1') << i;
-		if (i == 0)
+		i = 0;
+		if (!c)
 		{
-			printf("%c", c);
-			i = 7;
-			c = 0;
+			kill(pid, SIGUSR2);
+			pid = 0;
+			return ;
 		}
-		else
-			i--;
-		bin_str++;
+		printf("%c", c);
+		c = 0;
+		kill(pid, SIGUSR1);
 	}
-	printf("\n");
+	else
+		c <<= 1;
 }
 
 int	main(int argc, char **argv)
 {
 	struct sigaction sa;
-	int x;
     
-    // sigaction(SIGUSR1, &bit_decrypt, NULL);
-	printf("PID : %d\n", getpid());    
+	printf("TIENS TON PID : %d\n", getpid());
+	sa.sa_sigaction =  bit_decrypt;
+	sa.sa_flags = SA_SIGINFO;   
+	sigaction(SIGUSR1, &bit_decrypt, 0);
+	sigaction(SIGUSR2, &bit_decrypt, 0);
 	while(1)
-	    ;
+	    pause();
 	return(0);
 }
