@@ -6,7 +6,7 @@
 /*   By: ademnaouali <ademnaouali@student.42.fr>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 17:35:29 by anaouali          #+#    #+#             */
-/*   Updated: 2024/02/01 23:27:52 by ademnaouali      ###   ########.fr       */
+/*   Updated: 2024/02/03 23:39:01 by ademnaouali      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,13 +46,15 @@ static void		bit_decrypt(int sig, siginfo_t *bin_str, void *t)
 int	main(int argc, char **argv)
 {
 	struct sigaction sa;
-    
-	printf("TIENS TON PID : %d\n", getpid());
+    pid_t X;
+
+	X = getpid();
+	printf("PREND LE TON PID... PREND LE !!!! : %d\n", X);
 	sa.sa_sigaction =  bit_decrypt;
-	sa.sa_flags = SA_SIGINFO;   
-	sigaction(SIGUSR1, &bit_decrypt, 0);
-	sigaction(SIGUSR2, &bit_decrypt, 0);
+	sa.sa_flags = 0;   
+	sigaction(SIGUSR1, &sa, 0);
+	sigaction(SIGUSR2, &sa, 0);
 	while(1)
-	    pause();
+	  ;
 	return(0);
 }

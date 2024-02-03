@@ -3,42 +3,51 @@
 /*                                                        :::      ::::::::   */
 /*   client.c                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: anaouali <anaouali@student.42.fr>          +#+  +:+       +#+        */
+/*   By: ademnaouali <ademnaouali@student.42.fr>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/02/01 12:24:45 by anaouali          #+#    #+#             */
-/*   Updated: 2024/02/01 17:51:21 by anaouali         ###   ########.fr       */
+/*   Created: 2021/08/08 17:58:19 by hbaddrul          #+#    #+#             */
+/*   Updated: 2024/02/03 23:45:31 by ademnaouali      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <signal.h>
-#include <stdio.h>
+#include <stdlib.h>
 #include <unistd.h>
+#include <stdio.h>
 
-void	bit_crypt(char *str)
+static void	sender(int pid, char *str)
 {
-	int	i;
-	int	c;
+	int		i;
+	char	c;
 
-	i = 7;
 	while (*str)
 	{
-		while (i >= 0)
+		i = 8;
+		c = *str++;
+		while (i--)
 		{
-			printf("%c", ((*str >> i) & 1) + '0');
-			i--;
+			if (c >> i & 1)
+				kill(pid, SIGUSR2);
+			else
+				kill(pid, SIGUSR1);
+			usleep(100);
 		}
-        str++;
-        i = 7;
-    }
-	printf("\n");
+	}
 }
 
 int	main(int argc, char **argv)
 {
 	struct sigaction sa;
 	
-	sa.sa_handler = bit_crypt;
+	if (argc != 3 || !argv[2])
+		return (1);
+
+	sa.sa_sigaction = sender;
 	sa.sa_flags = 0;
-	kill(argv[1], SIGUSR2);
-	sigaction(SIGUSR2, &sa, NULL);
+	sigaction(SIGUSR1, &sa, 0);
+	sigaction(SIGUSR2, &sa, 0);
+	sender(atoi(argv[1]), argv[2]);
+	while (1)
+		;
+	return (0);
 }
