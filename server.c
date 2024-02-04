@@ -6,7 +6,7 @@
 /*   By: ademnaouali <ademnaouali@student.42.fr>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 17:35:29 by anaouali          #+#    #+#             */
-/*   Updated: 2024/02/03 23:39:01 by ademnaouali      ###   ########.fr       */
+/*   Updated: 2024/02/04 17:35:09 by ademnaouali      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 #include <stdio.h>
 #include <unistd.h>
 
-static void		bit_decrypt(int sig, siginfo_t *bin_str, void *t)
+static void		bit_decrypt(int sig, siginfo_t *struc_sa, void *t)
 {
 	static int	i;
 	static int	c;
@@ -24,7 +24,7 @@ static void		bit_decrypt(int sig, siginfo_t *bin_str, void *t)
 	i = 0;
 	pid = 0;
 	if (!pid)
-        pid = bin_str->si_pid;
+        pid = struc_sa->si_pid;
 	c |= (sig == SIGUSR2);
 	if (++i == 8)
 	{
@@ -51,7 +51,7 @@ int	main(int argc, char **argv)
 	X = getpid();
 	printf("PREND LE TON PID... PREND LE !!!! : %d\n", X);
 	sa.sa_sigaction =  bit_decrypt;
-	sa.sa_flags = 0;   
+	sa.sa_flags = SA_SIGINFO;   
 	sigaction(SIGUSR1, &sa, 0);
 	sigaction(SIGUSR2, &sa, 0);
 	while(1)

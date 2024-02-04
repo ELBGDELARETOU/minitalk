@@ -6,7 +6,7 @@
 /*   By: ademnaouali <ademnaouali@student.42.fr>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/08/08 17:58:19 by hbaddrul          #+#    #+#             */
-/*   Updated: 2024/02/03 23:45:31 by ademnaouali      ###   ########.fr       */
+/*   Updated: 2024/02/04 17:16:02 by ademnaouali      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,7 +41,6 @@ int	main(int argc, char **argv)
 	
 	if (argc != 3 || !argv[2])
 		return (1);
-
 	sa.sa_sigaction = sender;
 	sa.sa_flags = 0;
 	sigaction(SIGUSR1, &sa, 0);
