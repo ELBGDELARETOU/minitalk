@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   server.c                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ademnaouali <ademnaouali@student.42.fr>    +#+  +:+       +#+        */
+/*   By: anaouali <anaouali@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 17:35:29 by anaouali          #+#    #+#             */
-/*   Updated: 2024/02/04 17:35:09 by ademnaouali      ###   ########.fr       */
+/*   Updated: 2024/02/05 19:16:52 by anaouali         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,47 +14,38 @@
 #include <stdio.h>
 #include <unistd.h>
 
-static void		bit_decrypt(int sig, siginfo_t *struc_sa, void *t)
+static void	bit_decrypt(int sig, siginfo_t *struct_sa, void *t)
 {
-	static int	i;
-	static int	c;
-	static pid_t pid;
+	static int		i = 0;
+	static char		c = 0;
+	static pid_t	pid;
 
-	c = 0;
-	i = 0;
-	pid = 0;
 	if (!pid)
-        pid = struc_sa->si_pid;
-	c |= (sig == SIGUSR2);
-	if (++i == 8)
-	{
-		i = 0;
-		if (!c)
-		{
-			kill(pid, SIGUSR2);
-			pid = 0;
-			return ;
-		}
-		printf("%c", c);
-		c = 0;
-		kill(pid, SIGUSR1);
-	}
+		pid = struct_sa->si_pid;
+	if (sig == SIGUSR1)
+		c = (c << 1) | 0;
 	else
-		c <<= 1;
+		c = (c << 1) | 1;
+	i++;
+	if (i > 7)
+	{
+		write(1, &c, 1);
+		i = 0;
+		c = 0;
+	}
 }
 
 int	main(int argc, char **argv)
 {
-	struct sigaction sa;
-    pid_t X;
+	struct sigaction	sa;
 
-	X = getpid();
-	printf("PREND LE TON PID... PREND LE !!!! : %d\n", X);
-	sa.sa_sigaction =  bit_decrypt;
-	sa.sa_flags = SA_SIGINFO;   
+	printf("PREND LE TON PID... PREND LE !!!! : %d\n", getpid());
+	sigemptyset(&sa.sa_mask);
+	sa.sa_sigaction = bit_decrypt;
+	sa.sa_flags = SA_SIGINFO;
 	sigaction(SIGUSR1, &sa, 0);
 	sigaction(SIGUSR2, &sa, 0);
-	while(1)
-	  ;
-	return(0);
+	while (1)
+		usleep(100);
+	return (0);
 }
